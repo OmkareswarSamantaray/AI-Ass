@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
+            color: #e5e7eb;
+            overflow-x: hidden;
+        }
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        .content-card {
+            background-color: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(55, 65, 81, 0.5);
+        }
+        .nav-btn {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-btn.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+        .glowing-btn {
+            box-shadow: 0 0 5px #3b82f6, 0 0 10px #3b82f6;
+        }
+        .pulsing-loader {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #3b82f6;
+            animation: pulse 1.5s infinite cubic-bezier(0.4, 0, 0.6, 1);
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        #chat-window, #homework-chat-window {
+            height: 400px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+        .chat-bubble.user { background-color: #2563eb; color: white; }
+        .chat-bubble.model { background-color: #374151; color: #e5e7eb; }
+        .mic-active { animation: pulse-red 1.5s infinite; }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="container mx-auto max-w-3xl p-4 sm:p-6 md:p-8 relative z-10">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl sm:text-5xl font-bold text-white">Your <span class="text-blue-500">Assistant</span></h1>
+            <p class="mt-2 text-lg text-gray-400">Your futuristic guide to health and learning.</p>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="flex flex-wrap justify-center border-b border-gray-700 mb-8">
+            <button id="nav-identifier" class="nav-btn active text-lg font-medium py-4 px-6">Medicine Identifier</button>
+            <button id="nav-assistant" class="nav-btn text-lg font-medium py-4 px-6">First-Aid Assistant</button>
+            <button id="nav-homework" class="nav-btn text-lg font-medium py-4 px-6">Homework Helper</button>
+        </nav>
+
+        <main>
+            <!-- Medicine Identifier Section -->
+            <div id="identifier-section">
+                <div class="content-card rounded-xl shadow-2xl p-6 md:p-8">
+                    <div class="bg-red-900 bg-opacity-50 border-l-4 border-red-500 text-red-300 p-4 rounded-md mb-6" role="alert">
+                        <p class="font-bold">Important Disclaimer</p>
+                        <p>This tool is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment.</p>
+                    </div>
+                    <div class="flex flex-col items-center justify-center w-full">
+                         <label for="file-upload" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-900 hover:bg-gray-800 transition-colors">
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                <svg class="w-10 h-10 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/></svg>
+                                <p class="mb-2 text-sm text-gray-400"><span class="font-semibold text-blue-400">Click to upload</span> or drag and drop</p>
+                            </div>
+                            <input id="file-upload" type="file" class="hidden" accept="image/png, image/jpeg, image/webp" />
+                        </label>
+                        <div id="image-preview-container" class="mt-4 hidden w-full max-w-xs"><img id="image-preview" src="#" alt="Image Preview" class="max-h-48 w-full object-contain rounded-lg shadow-md mx-auto"/><p id="file-name" class="text-center text-sm text-gray-400 mt-2 truncate"></p></div>
+                    </div>
+                    <div class="mt-6 text-center"><button id="identify-btn" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-all transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-400 disabled:bg-blue-800 disabled:cursor-not-allowed disabled:shadow-none" disabled>Identify Medicine</button></div>
+                    <div id="results-container" class="mt-8 hidden"><h3 class="text-xl font-bold mb-4 text-blue-400 border-b border-gray-700 pb-2">Analysis Results</h3><div id="loader" class="flex justify-center items-center py-10"><div class="pulsing-loader"></div></div><div id="results-content" class="text-gray-300 space-y-4"></div></div>
+                    <div id="error-box" class="mt-6 hidden bg-red-900 bg-opacity-50 border border-red-500 text-red-300 px-4 py-3 rounded-lg relative" role="alert"><strong class="font-bold">Error:</strong><span id="error-message" class="block sm:inline"></span></div>
+                </div>
+            </div>
+
+            <!-- First-Aid Assistant Section -->
+            <div id="assistant-section" class="hidden">
+                 <div class="content-card rounded-xl shadow-2xl p-6 md:p-8">
+                    <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold text-white">First-Aid Assistant</h2><button id="toggle-tts-btn" class="p-2 rounded-full hover:bg-gray-700"><svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg><svg id="mute-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="1" x2="1" y2="23"></line></svg></button></div>
+                    <div class="bg-red-900 bg-opacity-50 border-l-4 border-red-500 text-red-300 p-4 rounded-md mb-6" role="alert"><p class="font-bold">Emergency Disclaimer</p><p>For any serious injuries, please call emergency services immediately.</p></div>
+                    <div id="chat-window" class="bg-gray-900 p-4 rounded-lg border border-gray-700 mb-4 flex flex-col space-y-4"></div>
+                    <div class="flex space-x-2"><input type="text" id="chat-input" class="flex-grow bg-gray-800 border-gray-600 focus:ring-blue-500 focus:border-blue-500 block w-full rounded-md sm:text-sm border p-3 text-white" placeholder="Type or press mic to talk..."><button id="mic-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold p-3 rounded-lg inline-flex items-center justify-center transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg></button><button id="send-chat-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold p-3 rounded-lg inline-flex items-center justify-center transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button></div>
+                    <div id="chat-error-box" class="mt-4 hidden bg-red-900 bg-opacity-50 border border-red-500 text-red-300 px-4 py-3 rounded-lg relative" role="alert"><strong class="font-bold">Error:</strong><span id="chat-error-message" class="block sm:inline"></span></div>
+                </div>
+            </div>
+            
+            <!-- Homework Helper Section -->
+            <div id="homework-section" class="hidden">
+                 <div class="content-card rounded-xl shadow-2xl p-6 md:p-8">
+                    <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold text-white">Homework Helper</h2></div>
+                     <div class="bg-blue-900 bg-opacity-50 border-l-4 border-blue-500 text-blue-300 p-4 rounded-md mb-6" role="alert">
+                        <p class="font-bold">Welcome Students!</p>
+                        <p>I'm here to help with your homework from Class 1 to 10. Ask a question below or upload a photo of your problem!</p>
+                    </div>
+
+                    <!-- Homework Image Upload -->
+                    <div class="flex flex-col items-center justify-center w-full mb-4">
+                         <label for="homework-file-upload" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-900 hover:bg-gray-800 transition-colors">
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                <svg class="w-8 h-8 mb-2 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/></svg>
+                                <p class="text-sm text-gray-400"><span class="font-semibold text-blue-400">Upload a photo of your problem</span></p>
+                            </div>
+                            <input id="homework-file-upload" type="file" class="hidden" accept="image/png, image/jpeg, image/webp" />
+                        </label>
+                        <div id="homework-image-preview-container" class="mt-4 hidden w-full max-w-xs"><img id="homework-image-preview" src="#" alt="Homework Image Preview" class="max-h-48 w-full object-contain rounded-lg shadow-md mx-auto"/><p id="homework-file-name" class="text-center text-sm text-gray-400 mt-2 truncate"></p></div>
+                    </div>
+
+                    <div id="homework-chat-window" class="bg-gray-900 p-4 rounded-lg border border-gray-700 mb-4 flex flex-col space-y-4"></div>
+                    <div class="flex space-x-2">
+                        <input type="text" id="homework-chat-input" class="flex-grow bg-gray-800 border-gray-600 focus:ring-blue-500 focus:border-blue-500 block w-full rounded-md sm:text-sm border p-3 text-white" placeholder="Or type your question here...">
+                        <button id="send-homework-chat-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold p-3 rounded-lg inline-flex items-center justify-center transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                        </button>
+                    </div>
+                    <div id="homework-chat-error-box" class="mt-4 hidden bg-red-900 bg-opacity-50 border border-red-500 text-red-300 px-4 py-3 rounded-lg relative" role="alert"><strong class="font-bold">Error:</strong><span id="homework-chat-error-message" class="block sm:inline"></span></div>
+                </div>
+            </div>
+        </main>
+        
+        <audio id="tts-audio-player" class="hidden"></audio>
+    </div>
+
+    <script>
+        // --- 3D BACKGROUND SCRIPT ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas'), antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.position.z = 50;
+
+        // ... (3D animation code remains the same) ...
+        const objects = [];
+        const sunGeometry = new THREE.SphereGeometry(5, 32, 32);
+        const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffcc33, wireframe: true });
+        const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+        scene.add(sun);
+        objects.push(sun);
+        const planets = [];
+        for (let i = 0; i < 5; i++) {
+            const planetGeometry = new THREE.SphereGeometry(Math.random() * 1.5 + 0.5, 16, 16);
+            const planetMaterial = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff, wireframe: true });
+            const planet = new THREE.Mesh(planetGeometry, planetMaterial);
+            const pivot = new THREE.Object3D();
+            sun.add(pivot);
+            pivot.add(planet);
+            planet.position.x = 10 + i * 7;
+            planets.push({ planet, pivot, speed: Math.random() * 0.01 + 0.005, rotationSpeed: Math.random() * 0.02 });
+        }
+        function createMedicalShape() {
+            const type = Math.floor(Math.random() * 4);
+            let geometry;
+            const material = new THREE.MeshBasicMaterial({ color: 0x3b82f6, wireframe: true });
+            switch(type) {
+                case 0: geometry = new THREE.CylinderGeometry(0.5, 0.5, 1.5, 16); break;
+                case 1: const shape = new THREE.Shape(); shape.moveTo(-0.5, -1.5); shape.lineTo(0.5, -1.5); shape.lineTo(0.5, -0.5); shape.lineTo(1.5, -0.5); shape.lineTo(1.5, 0.5); shape.lineTo(0.5, 0.5); shape.lineTo(0.5, 1.5); shape.lineTo(-0.5, 1.5); shape.lineTo(-0.5, 0.5); shape.lineTo(-1.5, 0.5); shape.lineTo(-1.5, -0.5); shape.lineTo(-0.5, -0.5); geometry = new THREE.ShapeGeometry(shape); break;
+                case 2: geometry = new THREE.TorusKnotGeometry(1, 0.2, 100, 6, 2, 3); break;
+                default: geometry = new THREE.CylinderGeometry(0.2, 0.2, 3, 8);
+            }
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.set((Math.random() - 0.5) * 150, (Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100);
+            mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+            scene.add(mesh);
+            objects.push(mesh);
+            return mesh;
+        }
+        const medicalShapes = Array(50).fill().map(createMedicalShape);
+        function animate() {
+            requestAnimationFrame(animate);
+            sun.rotation.y += 0.001;
+            planets.forEach(p => { p.pivot.rotation.y += p.speed; p.planet.rotation.y += p.rotationSpeed; });
+            medicalShapes.forEach(shape => {
+                shape.rotation.x += 0.005;
+                shape.rotation.y += 0.005;
+                shape.position.y -= 0.1;
+                if (shape.position.y < -50) shape.position.y = 50;
+            });
+            renderer.render(scene, camera);
+        }
+        animate();
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+
+        // --- NAVIGATION SCRIPT ---
+        const navButtons = {
+            identifier: document.getElementById('nav-identifier'),
+            assistant: document.getElementById('nav-assistant'),
+            homework: document.getElementById('nav-homework')
+        };
+        const sections = {
+            identifier: document.getElementById('identifier-section'),
+            assistant: document.getElementById('assistant-section'),
+            homework: document.getElementById('homework-section')
+        };
+
+        function switchTab(tabName) {
+            Object.keys(navButtons).forEach(key => {
+                navButtons[key].classList.toggle('active', key === tabName);
+                sections[key].classList.toggle('hidden', key !== tabName);
+            });
+        }
+
+        navButtons.identifier.addEventListener('click', () => switchTab('identifier'));
+        navButtons.assistant.addEventListener('click', () => switchTab('assistant'));
+        navButtons.homework.addEventListener('click', () => switchTab('homework'));
+
+
+        // --- SHARED FUNCTIONALITY ---
+        const apiKey = "AIzaSyA5idHm5ZfRKRVF1Z2sUgzkc3TVheJbUeY";
+        const audioPlayer = document.getElementById('tts-audio-player');
+        let geminiTtsAvailable = true; // Flag to track TTS quota
+
+        // --- MEDICINE IDENTIFIER ---
+        const fileUpload = document.getElementById('file-upload');
+        const identifyBtn = document.getElementById('identify-btn');
+        const resultsContainer = document.getElementById('results-container');
+        const resultsContent = document.getElementById('results-content');
+        const loader = document.getElementById('loader');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const imagePreview = document.getElementById('image-preview');
+        const fileNameDisplay = document.getElementById('file-name');
+        const errorBox = document.getElementById('error-box');
+        const errorMessage = document.getElementById('error-message');
+        let file = null;
+
+        fileUpload.addEventListener('change', (e) => {
+            file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    imagePreview.src = event.target.result;
+                    imagePreviewContainer.classList.remove('hidden');
+                    fileNameDisplay.textContent = file.name;
+                };
+                reader.readAsDataURL(file);
+                identifyBtn.disabled = false;
+            } else {
+                identifyBtn.disabled = true;
+            }
+        });
+
+        identifyBtn.addEventListener('click', handleIdentification);
+
+        async function handleIdentification() {
+            if (!file) {
+                showError('Please select an image file first.', 'error-box', 'error-message');
+                return;
+            }
+            resultsContainer.classList.remove('hidden');
+            resultsContent.classList.add('hidden');
+            loader.style.display = 'flex';
+            errorBox.classList.add('hidden');
+
+            try {
+                const base64ImageData = await fileToGenerativePart(file);
+                const prompt = `Please identify the medicine in the provided image. Based on the visual information (name, dosage, manufacturer if visible), provide the following details in a clear, easy-to-read format: 1. **Medicine Name:** (The brand or generic name) 2. **Brief Description:** (What is this medicine?) 3. **Primary Uses:** (What conditions is it typically prescribed for? Use a bulleted list.) 4. **Common Benefits:** (How does it help the patient? Use a bulleted list.) IMPORTANT: If the image is unclear, or you cannot confidently identify the medicine, please state that you are unable to identify it. Do not guess.`;
+                
+                const model = 'gemini-2.5-flash-preview-05-20';
+                const payload = { contents: [{ parts: [{ text: prompt }, base64ImageData] }] };
+                const resultText = await callGenericGeminiAPI(model, payload);
+                displayResults(resultText);
+
+            } catch (error) {
+                console.error('Identification Error:', error);
+                showError(error.message, 'error-box', 'error-message');
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+        
+        function displayResults(text) {
+            let htmlContent = text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-blue-400">$1</strong>').replace(/^\* (.*$)/gm, '<li class="ml-5 list-disc">$1</li>');
+            htmlContent = htmlContent.replace(/\n/g, '<br>');
+            resultsContent.innerHTML = htmlContent;
+            resultsContent.classList.remove('hidden');
+        }
+
+        // --- FIRST-AID ASSISTANT ---
+        const chatWindow = document.getElementById('chat-window');
+        const chatInput = document.getElementById('chat-input');
+        const sendChatBtn = document.getElementById('send-chat-btn');
+        const micBtn = document.getElementById('mic-btn');
+        const toggleTtsBtn = document.getElementById('toggle-tts-btn');
+        const speakerIcon = document.getElementById('speaker-icon');
+        const muteIcon = document.getElementById('mute-icon');
+        const chatErrorBox = document.getElementById('chat-error-box');
+        const chatErrorMessage = document.getElementById('chat-error-message');
+        
+        let firstAidConversationHistory = [];
+        let isTtsEnabled = true;
+        let isListening = false;
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition;
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.onresult = (event) => {
+                const currentTab = document.querySelector('.nav-btn.active').id;
+                if (currentTab === 'nav-assistant') {
+                    chatInput.value = event.results[0][0].transcript;
+                    sendFirstAidChatMessage();
+                }
+            };
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                showError(`Speech recognition error: ${event.error}`, 'chat-error-box', 'chat-error-message');
+            };
+            recognition.onend = () => {
+                isListening = false;
+                micBtn.classList.remove('mic-active', 'bg-red-500');
+            };
+        } else {
+            if(micBtn) micBtn.disabled = true;
+        }
+
+        sendChatBtn.addEventListener('click', sendFirstAidChatMessage);
+        chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendFirstAidChatMessage(); });
+        micBtn.addEventListener('click', () => {
+            if (!SpeechRecognition) return;
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.lang = detectLanguageForSTT(chatInput.value);
+                recognition.start();
+                isListening = true;
+                micBtn.classList.add('mic-active', 'bg-red-500');
+            }
+        });
+        toggleTtsBtn.addEventListener('click', () => {
+            isTtsEnabled = !isTtsEnabled;
+            speakerIcon.classList.toggle('hidden');
+            muteIcon.classList.toggle('hidden');
+            if (!isTtsEnabled) { audioPlayer.pause(); audioPlayer.src = ''; }
+        });
+
+        async function initializeFirstAidChat() {
+            const firstMessage = "Hello! I am your First-Aid Assistant. For any serious injuries, please call emergency services immediately. You can ask me for general self-care advice in English, Hindi, or Odia.";
+            firstAidConversationHistory = [
+                { role: 'user', parts: [{ text: "Start the conversation." }] }, 
+                { role: 'model', parts: [{ text: firstMessage }] }
+            ];
+            addMessageToChatWindow(firstMessage, 'model', 'chat-window');
+            await speak(firstMessage);
+        }
+
+        async function sendFirstAidChatMessage() {
+            const userInput = chatInput.value.trim();
+            if (!userInput) return;
+            addMessageToChatWindow(userInput, 'user', 'chat-window');
+            chatInput.value = '';
+            chatInput.disabled = true;
+            sendChatBtn.disabled = true;
+            micBtn.disabled = true;
+            firstAidConversationHistory.push({ role: 'user', parts: [{ text: userInput }] });
+            try {
+                const model = 'gemini-2.5-flash-preview-05-20';
+                const payload = { 
+                    contents: firstAidConversationHistory,
+                    systemInstruction: {
+                        role: "system",
+                        parts: [{ text: "You are a helpful and cautious First-Aid Assistant AI. Your role is to provide general, safe, self-care advice that has no side effects. Always begin by reminding the user to call emergency services for serious injuries. Detect the user's language. If the user asks a question in Hindi or Odia, you MUST respond in that language. Otherwise, respond in English. Keep your answers concise and easy to follow." }]
+                    }
+                };
+                const resultText = await callGenericGeminiAPI(model, payload);
+                addMessageToChatWindow(resultText, 'model', 'chat-window');
+                firstAidConversationHistory.push({ role: 'model', parts: [{ text: resultText }] });
+                await speak(resultText);
+            } catch (error) {
+                console.error('Chat Error:', error);
+                showError(error.message, 'chat-error-box', 'chat-error-message');
+                await speak("I'm sorry, an error occurred. Please try again.");
+            } finally {
+                chatInput.disabled = false;
+                sendChatBtn.disabled = false;
+                if(SpeechRecognition) micBtn.disabled = false;
+                chatInput.focus();
+            }
+        }
+        
+        // --- HOMEWORK HELPER ---
+        const homeworkChatWindow = document.getElementById('homework-chat-window');
+        const homeworkChatInput = document.getElementById('homework-chat-input');
+        const sendHomeworkChatBtn = document.getElementById('send-homework-chat-btn');
+        const homeworkFileUpload = document.getElementById('homework-file-upload');
+        const homeworkImagePreviewContainer = document.getElementById('homework-image-preview-container');
+        const homeworkImagePreview = document.getElementById('homework-image-preview');
+        const homeworkFileName = document.getElementById('homework-file-name');
+        const homeworkChatErrorBox = document.getElementById('homework-chat-error-box');
+        const homeworkChatErrorMessage = document.getElementById('homework-chat-error-message');
+        let homeworkFile = null;
+        let homeworkConversationHistory = [];
+
+        homeworkFileUpload.addEventListener('change', (e) => {
+            homeworkFile = e.target.files[0];
+            if (homeworkFile) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    homeworkImagePreview.src = event.target.result;
+                    homeworkImagePreviewContainer.classList.remove('hidden');
+                    homeworkFileName.textContent = homeworkFile.name;
+                };
+                reader.readAsDataURL(homeworkFile);
+            }
+        });
+
+        sendHomeworkChatBtn.addEventListener('click', sendHomeworkChatMessage);
+        homeworkChatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendHomeworkChatMessage(); });
+        
+        async function sendHomeworkChatMessage() {
+            const userInput = homeworkChatInput.value.trim();
+            if (!userInput && !homeworkFile) {
+                showError("Please type a question or upload an image.", 'homework-chat-error-box', 'homework-chat-error-message');
+                return;
+            }
+
+            addMessageToChatWindow(userInput, 'user', 'homework-chat-window');
+            if (homeworkFile) {
+                const imgElement = document.createElement('img');
+                imgElement.src = homeworkImagePreview.src;
+                imgElement.classList.add('w-32', 'rounded-lg', 'mt-2');
+                addMessageToChatWindow('', 'user', 'homework-chat-window').appendChild(imgElement);
+            }
+
+            homeworkChatInput.value = '';
+            homeworkChatInput.disabled = true;
+            sendHomeworkChatBtn.disabled = true;
+            
+            const parts = [{ text: userInput }];
+            if (homeworkFile) {
+                const imagePart = await fileToGenerativePart(homeworkFile);
+                parts.push(imagePart);
+            }
+
+            homeworkConversationHistory.push({ role: 'user', parts: parts });
+            
+            try {
+                 const model = 'gemini-2.5-flash-preview-05-20';
+                 const payload = {
+                     contents: homeworkConversationHistory,
+                     systemInstruction: {
+                         role: "system",
+                         parts: [{ text: "You are a friendly and encouraging Homework Helper for students in classes 1 through 10. Analyze the image and text provided. Your goal is to help students understand their homework problems, not just give them the answers. Explain concepts clearly, break down problems into smaller steps, and ask guiding questions to help them arrive at the solution themselves. Maintain a positive and patient tone. Adapt your language to be simple for younger students and more detailed for older students." }]
+                     }
+                 };
+                 const resultText = await callGenericGeminiAPI(model, payload);
+                 addMessageToChatWindow(resultText, 'model', 'homework-chat-window');
+                 homeworkConversationHistory.push({ role: 'model', parts: [{ text: resultText }] });
+                 await speak(resultText); 
+            } catch (error) {
+                console.error('Homework Chat Error:', error);
+                showError(error.message, 'homework-chat-error-box', 'homework-chat-error-message');
+            } finally {
+                homeworkChatInput.disabled = false;
+                sendHomeworkChatBtn.disabled = false;
+                homeworkChatInput.focus();
+                // Reset file input
+                homeworkFile = null;
+                homeworkFileUpload.value = '';
+                homeworkImagePreviewContainer.classList.add('hidden');
+            }
+        }
+
+
+        // --- SHARED HELPER FUNCTIONS ---
+        async function fileToGenerativePart(file) {
+            const base64EncodedDataPromise = new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                reader.readAsDataURL(file);
+            });
+            return { inlineData: { mimeType: file.type, data: await base64EncodedDataPromise } };
+        }
+
+        function detectLanguageForSTT(text) {
+            if (/[\u0B00-\u0B7F]/.test(text)) return 'or-IN';
+            if (/[\u0900-\u097F]/.test(text)) return 'hi-IN';
+            return 'en-US';
+        }
+        
+        function isEnglish(text) {
+            return !/[\u0900-\u097F\u0B00-\u0B7F]/.test(text);
+        }
+
+        function addMessageToChatWindow(message, sender, windowId) {
+            const chatWin = document.getElementById(windowId);
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('chat-bubble', 'p-3', 'rounded-lg', 'max-w-xs', 'md:max-w-md', 'break-words', sender);
+            if (message) {
+                 messageElement.innerHTML = message.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+            }
+            chatWin.appendChild(messageElement);
+            chatWin.scrollTop = chatWin.scrollHeight;
+            return messageElement;
+        }
+
+        function speakWithBrowserAPI(text) {
+            speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            speechSynthesis.speak(utterance);
+        }
+
+        async function speak(text) {
+            if (!isTtsEnabled || !text) return;
+            
+            if (!geminiTtsAvailable) {
+                speakWithBrowserAPI(text);
+                return;
+            }
+
+            let textToSpeak = text;
+            if (!isEnglish(text)) {
+                try {
+                    const translationPayload = {
+                        contents: [{ parts: [{ text: `Translate the following to English, providing only the translated text itself: "${text}"` }] }]
+                    };
+                    const translatedText = await callGenericGeminiAPI('gemini-2.5-flash-preview-05-20', translationPayload);
+                    if (!translatedText || translatedText.trim() === '') {
+                        throw new Error("Translation resulted in empty text.");
+                    }
+                    textToSpeak = translatedText.trim();
+                } catch (error) {
+                    console.error("Translation for TTS failed:", error);
+                    showError("Could not translate response for audio.", 'chat-error-box', 'chat-error-message');
+                    return;
+                }
+            }
+
+            if (!textToSpeak) {
+                console.error("TTS skipped: No text to speak.");
+                return;
+            }
+
+            const payload = {
+                contents: [{ parts: [{ text: textToSpeak }] }],
+                generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } } },
+                model: "gemini-2.5-flash-preview-tts"
+            };
+            try {
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!response.ok) {
+                    let errorDetails = `TTS API Error: ${response.status} ${response.statusText}`;
+                    try {
+                        const errorBody = await response.json();
+                        console.error("TTS Error Body:", errorBody);
+                        errorDetails += ` - ${errorBody.error?.message || 'Unknown API error'}`;
+                    } catch (e) { console.error("Could not parse TTS error body."); }
+                    throw new Error(errorDetails);
+                }
+                const result = await response.json();
+                const part = result?.candidates?.[0]?.content?.parts?.[0];
+                const audioData = part?.inlineData?.data;
+                const mimeType = part?.inlineData?.mimeType;
+                if (audioData && mimeType?.startsWith("audio/")) {
+                    const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)[1], 10);
+                    const pcmData = base64ToArrayBuffer(audioData);
+                    const pcm16 = new Int16Array(pcmData);
+                    const wavBlob = pcmToWav(pcm16, sampleRate);
+                    audioPlayer.src = URL.createObjectURL(wavBlob);
+                    audioPlayer.play();
+                } else { throw new Error("Invalid audio data received from API."); }
+            } catch (error) {
+                console.error("Full error in speak function:", error);
+                if (error.message.includes("429")) {
+                    geminiTtsAvailable = false;
+                    showError("High-quality voice limit reached. Switching to standard browser voice.", 'chat-error-box', 'chat-error-message');
+                    speakWithBrowserAPI(textToSpeak); // Fallback to browser voice
+                } else {
+                    showError(`Could not generate audio. Reason: ${error.message}`, 'chat-error-box', 'chat-error-message');
+                }
+            }
+        }
+        
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        function pcmToWav(pcmData, sampleRate) {
+            const buffer = new ArrayBuffer(44 + pcmData.length * 2);
+            const view = new DataView(buffer);
+            writeString(view, 0, 'RIFF'); view.setUint32(4, 36 + pcmData.length * 2, true);
+            writeString(view, 8, 'WAVE'); writeString(view, 12, 'fmt '); view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true); view.setUint16(22, 1, true); view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+            writeString(view, 36, 'data'); view.setUint32(40, pcmData.length * 2, true);
+            for (let i = 0; i < pcmData.length; i++) {
+                view.setInt16(44 + i * 2, pcmData[i], true);
+            }
+            return new Blob([view], { type: 'audio/wav' });
+        }
+
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+
+        async function callGenericGeminiAPI(model, payload) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+            const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            if (!response.ok) {
+                const errorBody = await response.json();
+                throw new Error(`API Error: ${response.statusText} - ${errorBody.error?.message || 'Unknown error'}`);
+            }
+            const result = await response.json();
+            const parts = result.candidates?.[0]?.content?.parts;
+            if (parts?.length > 0) return parts[0].text;
+            if (result.candidates?.[0]?.finishReason === 'SAFETY') throw new Error("Response blocked for safety reasons.");
+            throw new Error("Could not get a valid response.");
+        }
+
+        function showError(message, boxId, messageId) {
+            const box = document.getElementById(boxId);
+            const msg = document.getElementById(messageId);
+            if(box && msg) { msg.textContent = message; box.classList.remove('hidden'); }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => { initializeFirstAidChat(); });
+    </script>
+</body>
+</html>
