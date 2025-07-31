@@ -1,3 +1,6 @@
+Of course\! Here is the code with the "Homework Helper" section completely removed.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -49,7 +52,7 @@
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.5; transform: scale(0.8); }
         }
-        #chat-window, #homework-chat-window {
+        #chat-window {
             height: 400px;
             overflow-y: auto;
             scroll-behavior: smooth;
@@ -73,15 +76,12 @@
             <p class="mt-2 text-lg text-gray-400">Your futuristic guide to health and learning.</p>
         </header>
 
-        <!-- Navigation -->
         <nav class="flex flex-wrap justify-center border-b border-gray-700 mb-8">
             <button id="nav-identifier" class="nav-btn active text-lg font-medium py-4 px-6">Medicine Identifier</button>
             <button id="nav-assistant" class="nav-btn text-lg font-medium py-4 px-6">First-Aid Assistant</button>
-            <button id="nav-homework" class="nav-btn text-lg font-medium py-4 px-6">Homework Helper</button>
         </nav>
 
         <main>
-            <!-- Medicine Identifier Section -->
             <div id="identifier-section">
                 <div class="content-card rounded-xl shadow-2xl p-6 md:p-8">
                     <div class="bg-red-900 bg-opacity-50 border-l-4 border-red-500 text-red-300 p-4 rounded-md mb-6" role="alert">
@@ -90,13 +90,13 @@
                     </div>
                     <div class="flex flex-col items-center justify-center w-full">
                          <label for="file-upload" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-900 hover:bg-gray-800 transition-colors">
-                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                <svg class="w-10 h-10 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/></svg>
-                                <p class="mb-2 text-sm text-gray-400"><span class="font-semibold text-blue-400">Click to upload</span> or drag and drop</p>
-                            </div>
-                            <input id="file-upload" type="file" class="hidden" accept="image/png, image/jpeg, image/webp" />
-                        </label>
-                        <div id="image-preview-container" class="mt-4 hidden w-full max-w-xs"><img id="image-preview" src="#" alt="Image Preview" class="max-h-48 w-full object-contain rounded-lg shadow-md mx-auto"/><p id="file-name" class="text-center text-sm text-gray-400 mt-2 truncate"></p></div>
+                             <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                 <svg class="w-10 h-10 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/></svg>
+                                 <p class="mb-2 text-sm text-gray-400"><span class="font-semibold text-blue-400">Click to upload</span> or drag and drop</p>
+                             </div>
+                             <input id="file-upload" type="file" class="hidden" accept="image/png, image/jpeg, image/webp" />
+                         </label>
+                         <div id="image-preview-container" class="mt-4 hidden w-full max-w-xs"><img id="image-preview" src="#" alt="Image Preview" class="max-h-48 w-full object-contain rounded-lg shadow-md mx-auto"/><p id="file-name" class="text-center text-sm text-gray-400 mt-2 truncate"></p></div>
                     </div>
                     <div class="mt-6 text-center"><button id="identify-btn" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-all transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-400 disabled:bg-blue-800 disabled:cursor-not-allowed disabled:shadow-none" disabled>Identify Medicine</button></div>
                     <div id="results-container" class="mt-8 hidden"><h3 class="text-xl font-bold mb-4 text-blue-400 border-b border-gray-700 pb-2">Analysis Results</h3><div id="loader" class="flex justify-center items-center py-10"><div class="pulsing-loader"></div></div><div id="results-content" class="text-gray-300 space-y-4"></div></div>
@@ -104,48 +104,16 @@
                 </div>
             </div>
 
-            <!-- First-Aid Assistant Section -->
             <div id="assistant-section" class="hidden">
                  <div class="content-card rounded-xl shadow-2xl p-6 md:p-8">
-                    <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold text-white">First-Aid Assistant</h2><button id="toggle-tts-btn" class="p-2 rounded-full hover:bg-gray-700"><svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg><svg id="mute-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="1" x2="1" y2="23"></line></svg></button></div>
-                    <div class="bg-red-900 bg-opacity-50 border-l-4 border-red-500 text-red-300 p-4 rounded-md mb-6" role="alert"><p class="font-bold">Emergency Disclaimer</p><p>For any serious injuries, please call emergency services immediately.</p></div>
-                    <div id="chat-window" class="bg-gray-900 p-4 rounded-lg border border-gray-700 mb-4 flex flex-col space-y-4"></div>
-                    <div class="flex space-x-2"><input type="text" id="chat-input" class="flex-grow bg-gray-800 border-gray-600 focus:ring-blue-500 focus:border-blue-500 block w-full rounded-md sm:text-sm border p-3 text-white" placeholder="Type or press mic to talk..."><button id="mic-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold p-3 rounded-lg inline-flex items-center justify-center transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg></button><button id="send-chat-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold p-3 rounded-lg inline-flex items-center justify-center transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button></div>
-                    <div id="chat-error-box" class="mt-4 hidden bg-red-900 bg-opacity-50 border border-red-500 text-red-300 px-4 py-3 rounded-lg relative" role="alert"><strong class="font-bold">Error:</strong><span id="chat-error-message" class="block sm:inline"></span></div>
-                </div>
+                     <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold text-white">First-Aid Assistant</h2><button id="toggle-tts-btn" class="p-2 rounded-full hover:bg-gray-700"><svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg><svg id="mute-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="1" x2="1" y2="23"></line></svg></button></div>
+                     <div class="bg-red-900 bg-opacity-50 border-l-4 border-red-500 text-red-300 p-4 rounded-md mb-6" role="alert"><p class="font-bold">Emergency Disclaimer</p><p>For any serious injuries, please call emergency services immediately.</p></div>
+                     <div id="chat-window" class="bg-gray-900 p-4 rounded-lg border border-gray-700 mb-4 flex flex-col space-y-4"></div>
+                     <div class="flex space-x-2"><input type="text" id="chat-input" class="flex-grow bg-gray-800 border-gray-600 focus:ring-blue-500 focus:border-blue-500 block w-full rounded-md sm:text-sm border p-3 text-white" placeholder="Type or press mic to talk..."><button id="mic-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold p-3 rounded-lg inline-flex items-center justify-center transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg></button><button id="send-chat-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold p-3 rounded-lg inline-flex items-center justify-center transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button></div>
+                     <div id="chat-error-box" class="mt-4 hidden bg-red-900 bg-opacity-50 border border-red-500 text-red-300 px-4 py-3 rounded-lg relative" role="alert"><strong class="font-bold">Error:</strong><span id="chat-error-message" class="block sm:inline"></span></div>
+                 </div>
             </div>
             
-            <!-- Homework Helper Section -->
-            <div id="homework-section" class="hidden">
-                 <div class="content-card rounded-xl shadow-2xl p-6 md:p-8">
-                    <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold text-white">Homework Helper</h2></div>
-                     <div class="bg-blue-900 bg-opacity-50 border-l-4 border-blue-500 text-blue-300 p-4 rounded-md mb-6" role="alert">
-                        <p class="font-bold">Welcome Students!</p>
-                        <p>I'm here to help with your homework from Class 1 to 10. Ask a question below or upload a photo of your problem!</p>
-                    </div>
-
-                    <!-- Homework Image Upload -->
-                    <div class="flex flex-col items-center justify-center w-full mb-4">
-                         <label for="homework-file-upload" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-900 hover:bg-gray-800 transition-colors">
-                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                <svg class="w-8 h-8 mb-2 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/></svg>
-                                <p class="text-sm text-gray-400"><span class="font-semibold text-blue-400">Upload a photo of your problem</span></p>
-                            </div>
-                            <input id="homework-file-upload" type="file" class="hidden" accept="image/png, image/jpeg, image/webp" />
-                        </label>
-                        <div id="homework-image-preview-container" class="mt-4 hidden w-full max-w-xs"><img id="homework-image-preview" src="#" alt="Homework Image Preview" class="max-h-48 w-full object-contain rounded-lg shadow-md mx-auto"/><p id="homework-file-name" class="text-center text-sm text-gray-400 mt-2 truncate"></p></div>
-                    </div>
-
-                    <div id="homework-chat-window" class="bg-gray-900 p-4 rounded-lg border border-gray-700 mb-4 flex flex-col space-y-4"></div>
-                    <div class="flex space-x-2">
-                        <input type="text" id="homework-chat-input" class="flex-grow bg-gray-800 border-gray-600 focus:ring-blue-500 focus:border-blue-500 block w-full rounded-md sm:text-sm border p-3 text-white" placeholder="Or type your question here...">
-                        <button id="send-homework-chat-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold p-3 rounded-lg inline-flex items-center justify-center transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                        </button>
-                    </div>
-                    <div id="homework-chat-error-box" class="mt-4 hidden bg-red-900 bg-opacity-50 border border-red-500 text-red-300 px-4 py-3 rounded-lg relative" role="alert"><strong class="font-bold">Error:</strong><span id="homework-chat-error-message" class="block sm:inline"></span></div>
-                </div>
-            </div>
         </main>
         
         <audio id="tts-audio-player" class="hidden"></audio>
@@ -219,12 +187,10 @@
         const navButtons = {
             identifier: document.getElementById('nav-identifier'),
             assistant: document.getElementById('nav-assistant'),
-            homework: document.getElementById('nav-homework')
         };
         const sections = {
             identifier: document.getElementById('identifier-section'),
             assistant: document.getElementById('assistant-section'),
-            homework: document.getElementById('homework-section')
         };
 
         function switchTab(tabName) {
@@ -236,11 +202,10 @@
 
         navButtons.identifier.addEventListener('click', () => switchTab('identifier'));
         navButtons.assistant.addEventListener('click', () => switchTab('assistant'));
-        navButtons.homework.addEventListener('click', () => switchTab('homework'));
 
 
         // --- SHARED FUNCTIONALITY ---
-        const apiKey = "AIzaSyA5idHm5ZfRKRVF1Z2sUgzkc3TVheJbUeY";
+        const apiKey = "AIzaSyA5idHm5ZfRKRVF1Z2sUgzkc3TVheJbUeY"; // Replace with your actual API key
         const audioPlayer = document.getElementById('tts-audio-player');
         let geminiTtsAvailable = true; // Flag to track TTS quota
 
@@ -289,7 +254,7 @@
                 const base64ImageData = await fileToGenerativePart(file);
                 const prompt = `Please identify the medicine in the provided image. Based on the visual information (name, dosage, manufacturer if visible), provide the following details in a clear, easy-to-read format: 1. **Medicine Name:** (The brand or generic name) 2. **Brief Description:** (What is this medicine?) 3. **Primary Uses:** (What conditions is it typically prescribed for? Use a bulleted list.) 4. **Common Benefits:** (How does it help the patient? Use a bulleted list.) IMPORTANT: If the image is unclear, or you cannot confidently identify the medicine, please state that you are unable to identify it. Do not guess.`;
                 
-                const model = 'gemini-2.5-flash-preview-05-20';
+                const model = 'gemini-1.5-flash-latest';
                 const payload = { contents: [{ parts: [{ text: prompt }, base64ImageData] }] };
                 const resultText = await callGenericGeminiAPI(model, payload);
                 displayResults(resultText);
@@ -389,7 +354,7 @@
             micBtn.disabled = true;
             firstAidConversationHistory.push({ role: 'user', parts: [{ text: userInput }] });
             try {
-                const model = 'gemini-2.5-flash-preview-05-20';
+                const model = 'gemini-1.5-flash-latest';
                 const payload = { 
                     contents: firstAidConversationHistory,
                     systemInstruction: {
@@ -413,90 +378,6 @@
             }
         }
         
-        // --- HOMEWORK HELPER ---
-        const homeworkChatWindow = document.getElementById('homework-chat-window');
-        const homeworkChatInput = document.getElementById('homework-chat-input');
-        const sendHomeworkChatBtn = document.getElementById('send-homework-chat-btn');
-        const homeworkFileUpload = document.getElementById('homework-file-upload');
-        const homeworkImagePreviewContainer = document.getElementById('homework-image-preview-container');
-        const homeworkImagePreview = document.getElementById('homework-image-preview');
-        const homeworkFileName = document.getElementById('homework-file-name');
-        const homeworkChatErrorBox = document.getElementById('homework-chat-error-box');
-        const homeworkChatErrorMessage = document.getElementById('homework-chat-error-message');
-        let homeworkFile = null;
-        let homeworkConversationHistory = [];
-
-        homeworkFileUpload.addEventListener('change', (e) => {
-            homeworkFile = e.target.files[0];
-            if (homeworkFile) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    homeworkImagePreview.src = event.target.result;
-                    homeworkImagePreviewContainer.classList.remove('hidden');
-                    homeworkFileName.textContent = homeworkFile.name;
-                };
-                reader.readAsDataURL(homeworkFile);
-            }
-        });
-
-        sendHomeworkChatBtn.addEventListener('click', sendHomeworkChatMessage);
-        homeworkChatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendHomeworkChatMessage(); });
-        
-        async function sendHomeworkChatMessage() {
-            const userInput = homeworkChatInput.value.trim();
-            if (!userInput && !homeworkFile) {
-                showError("Please type a question or upload an image.", 'homework-chat-error-box', 'homework-chat-error-message');
-                return;
-            }
-
-            addMessageToChatWindow(userInput, 'user', 'homework-chat-window');
-            if (homeworkFile) {
-                const imgElement = document.createElement('img');
-                imgElement.src = homeworkImagePreview.src;
-                imgElement.classList.add('w-32', 'rounded-lg', 'mt-2');
-                addMessageToChatWindow('', 'user', 'homework-chat-window').appendChild(imgElement);
-            }
-
-            homeworkChatInput.value = '';
-            homeworkChatInput.disabled = true;
-            sendHomeworkChatBtn.disabled = true;
-            
-            const parts = [{ text: userInput }];
-            if (homeworkFile) {
-                const imagePart = await fileToGenerativePart(homeworkFile);
-                parts.push(imagePart);
-            }
-
-            homeworkConversationHistory.push({ role: 'user', parts: parts });
-            
-            try {
-                 const model = 'gemini-2.5-flash-preview-05-20';
-                 const payload = {
-                     contents: homeworkConversationHistory,
-                     systemInstruction: {
-                         role: "system",
-                         parts: [{ text: "You are a friendly and encouraging Homework Helper for students in classes 1 through 10. Analyze the image and text provided. Your goal is to help students understand their homework problems, not just give them the answers. Explain concepts clearly, break down problems into smaller steps, and ask guiding questions to help them arrive at the solution themselves. Maintain a positive and patient tone. Adapt your language to be simple for younger students and more detailed for older students." }]
-                     }
-                 };
-                 const resultText = await callGenericGeminiAPI(model, payload);
-                 addMessageToChatWindow(resultText, 'model', 'homework-chat-window');
-                 homeworkConversationHistory.push({ role: 'model', parts: [{ text: resultText }] });
-                 await speak(resultText); 
-            } catch (error) {
-                console.error('Homework Chat Error:', error);
-                showError(error.message, 'homework-chat-error-box', 'homework-chat-error-message');
-            } finally {
-                homeworkChatInput.disabled = false;
-                sendHomeworkChatBtn.disabled = false;
-                homeworkChatInput.focus();
-                // Reset file input
-                homeworkFile = null;
-                homeworkFileUpload.value = '';
-                homeworkImagePreviewContainer.classList.add('hidden');
-            }
-        }
-
-
         // --- SHARED HELPER FUNCTIONS ---
         async function fileToGenerativePart(file) {
             const base64EncodedDataPromise = new Promise((resolve) => {
@@ -549,7 +430,7 @@
                     const translationPayload = {
                         contents: [{ parts: [{ text: `Translate the following to English, providing only the translated text itself: "${text}"` }] }]
                     };
-                    const translatedText = await callGenericGeminiAPI('gemini-2.5-flash-preview-05-20', translationPayload);
+                    const translatedText = await callGenericGeminiAPI('gemini-1.5-flash-latest', translationPayload);
                     if (!translatedText || translatedText.trim() === '') {
                         throw new Error("Translation resulted in empty text.");
                     }
@@ -566,14 +447,18 @@
                 return;
             }
 
+            // Using text-to-speech-2 as it might be available in more regions
+            const model = "models/text-to-speech-2";
+            const ttsApiUrl = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${apiKey}`;
+
             const payload = {
-                contents: [{ parts: [{ text: textToSpeak }] }],
-                generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } } },
-                model: "gemini-2.5-flash-preview-tts"
+                input: { text: textToSpeak },
+                voice: { languageCode: "en-US", name: "en-US-Standard-C" },
+                audioConfig: { audioEncoding: "MP3" }
             };
+
             try {
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
-                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const response = await fetch(ttsApiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 if (!response.ok) {
                     let errorDetails = `TTS API Error: ${response.status} ${response.statusText}`;
                     try {
@@ -584,55 +469,21 @@
                     throw new Error(errorDetails);
                 }
                 const result = await response.json();
-                const part = result?.candidates?.[0]?.content?.parts?.[0];
-                const audioData = part?.inlineData?.data;
-                const mimeType = part?.inlineData?.mimeType;
-                if (audioData && mimeType?.startsWith("audio/")) {
-                    const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)[1], 10);
-                    const pcmData = base64ToArrayBuffer(audioData);
-                    const pcm16 = new Int16Array(pcmData);
-                    const wavBlob = pcmToWav(pcm16, sampleRate);
-                    audioPlayer.src = URL.createObjectURL(wavBlob);
+                const audioContent = result.audioContent;
+                if (audioContent) {
+                    audioPlayer.src = "data:audio/mp3;base64," + audioContent;
                     audioPlayer.play();
                 } else { throw new Error("Invalid audio data received from API."); }
             } catch (error) {
                 console.error("Full error in speak function:", error);
-                if (error.message.includes("429")) {
+                if (error.message.includes("429")) { // Quota error
                     geminiTtsAvailable = false;
                     showError("High-quality voice limit reached. Switching to standard browser voice.", 'chat-error-box', 'chat-error-message');
                     speakWithBrowserAPI(textToSpeak); // Fallback to browser voice
                 } else {
-                    showError(`Could not generate audio. Reason: ${error.message}`, 'chat-error-box', 'chat-error-message');
+                    showError(`Could not generate audio. Switching to standard voice.`, 'chat-error-box', 'chat-error-message');
+                    speakWithBrowserAPI(textToSpeak); // Fallback for other errors too
                 }
-            }
-        }
-        
-        function base64ToArrayBuffer(base64) {
-            const binaryString = window.atob(base64);
-            const bytes = new Uint8Array(binaryString.length);
-            for (let i = 0; i < binaryString.length; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-            return bytes.buffer;
-        }
-
-        function pcmToWav(pcmData, sampleRate) {
-            const buffer = new ArrayBuffer(44 + pcmData.length * 2);
-            const view = new DataView(buffer);
-            writeString(view, 0, 'RIFF'); view.setUint32(4, 36 + pcmData.length * 2, true);
-            writeString(view, 8, 'WAVE'); writeString(view, 12, 'fmt '); view.setUint32(16, 16, true);
-            view.setUint16(20, 1, true); view.setUint16(22, 1, true); view.setUint32(24, sampleRate, true);
-            view.setUint32(28, sampleRate * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true);
-            writeString(view, 36, 'data'); view.setUint32(40, pcmData.length * 2, true);
-            for (let i = 0; i < pcmData.length; i++) {
-                view.setInt16(44 + i * 2, pcmData[i], true);
-            }
-            return new Blob([view], { type: 'audio/wav' });
-        }
-
-        function writeString(view, offset, string) {
-            for (let i = 0; i < string.length; i++) {
-                view.setUint8(offset + i, string.charCodeAt(i));
             }
         }
 
@@ -660,3 +511,4 @@
     </script>
 </body>
 </html>
+```
